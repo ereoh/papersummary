@@ -31,9 +31,8 @@ def convert_pdf_to_txt(pdf_file, txt_file):
         for page in range(len(pdf_reader.pages)):
             text += pdf_reader.pages[page].extract_text()
 
-    # Write the text to the text file
-    prompt = "summarize the following document:"
+    # Write the text to the txt file
     with open(txt_file, 'w', encoding='utf-8') as file:
-        file.write(prompt + "\n" + text)
+        file.write(text)
 
     print(f"Converted: {pdf_file} to {txt_file}")
