@@ -3,8 +3,45 @@ Simple utility function to convert a pdf file to a txt file
 """
 
 import PyPDF2
+from pathlib import Path
 
-def convert_pdf_to_txt(pdf_file, txt_file):
+from typing import Tuple
+
+def generate_prompt(
+        pdf_file: str, 
+        prompt: str = "Write a clear, concise, objective summary for the following document:", 
+        txt_file: str = None
+    ) -> Tuple[bool, str]:
+    pdf_file = Path(pdf_file)
+    # Check if the PDF file exists
+    try:
+        print(pdf_file)
+        with open(pdf_file, 'rb') as file:
+            pass
+    except FileNotFoundError:
+        print(f"Error: Could not find the file: {pdf_file}")
+        return False, f"Error: Could not find the file: {pdf_file}"
+    
+    # create txt filepath
+    txt_file = pdf_file.with_suffix(".txt") if txt_file is None else txt_file
+    try:
+        convert_pdf_to_txt(pdf_file, txt_file)
+
+        add_prompt_txt(txt_file, prompt)
+    except:
+        return False, f"Error: Could not convert pdf to txt: {pdf_file}, {txt_file}"
+
+    return True, txt_file
+
+def add_prompt_txt(txt_file: str, prompt: str):
+    # add prompt to top of file
+    with open(txt_file, 'r') as file:
+        contents = file.read()
+
+    with open(txt_file, 'w') as file:
+        file.write(prompt + '\n' + contents)
+
+def convert_pdf_to_txt(pdf_file: str, txt_file: str):
     """
     Convert a PDF file to a text file.
 
@@ -15,13 +52,6 @@ def convert_pdf_to_txt(pdf_file, txt_file):
     Returns:
         None
     """
-    # Check if the PDF file exists
-    try:
-        with open(pdf_file, 'rb') as file:
-            pass
-    except FileNotFoundError:
-        print(f"Could not find the file: {pdf_file}")
-        return
 
     # Extract text from the PDF
     with open(pdf_file, 'rb') as file:
@@ -55,3 +85,5 @@ def convert_pdf_to_txt(pdf_file, txt_file):
         file.write(text)
 
     print(f"Converted: {pdf_file} to {txt_file}")
+
+    return txt_file

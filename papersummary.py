@@ -2,7 +2,7 @@ import sys
 import os
 from pathlib import Path
 
-from pdf2txt import convert_pdf_to_txt
+from pdf2txt import generate_prompt
 
 prompt = "Write a clear, concise, objective summary for the following document:"
 
@@ -22,16 +22,9 @@ def main():
             print(f"Error: {pdf_path} does not exist. Skipping...")
             continue
 
-        # Convert the PDF to a TXT file
-        txt_path = pdf_path.with_suffix(".txt")
-        convert_pdf_to_txt(pdf_path, txt_path)
+        generate_prompt(pdf_file=pdf_path, prompt=prompt)
 
-        # add prompt to top of file
-        with open(txt_path, 'r') as file:
-            contents = file.read()
-
-        with open(txt_path, 'w') as file:
-            file.write(prompt + '\n' + contents)
+        
 
     print("\nCopy everything in txt file, and paste into any AI Chat of your choice.")
     print("Note: The AI chat might not be able to handle very large files.")
