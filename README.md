@@ -54,3 +54,6 @@ deactivate
     - Many AI agents have a hard time parsing PDF files, but can easily read txt files.
 - Why no automatic prompting?
     - To keep this library as flexible and lightweight as possible, users can add their own code/workflows/pipeline to query the AI of their choice.
+
+## Developer Notes
+- install python3-tk
