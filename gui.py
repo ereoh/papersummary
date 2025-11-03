@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import ttk
 from tkinter import filedialog, Label, Button
 
 from papersummary.main import run, SUPPORTED_FILETYPES
@@ -14,17 +15,21 @@ def browse_file():
     Opens a file dialog to select a file and updates the label with the selected file path.
     """
     global filepath
-    filepath = filedialog.askopenfilename(
+    selected_path = filedialog.askopenfilename(
         initialdir="./",
         title="Select a File",
         filetypes=FILE_BROWSER_FILTER
     )
-    if filepath:
-        filepath = filepath
+    if selected_path:
+        filepath = selected_path
         # Update the label to show the selected file path
-        file_path_label.config(text=f"Selected File: {filepath}", wraplength=400)
+        file_path_label.config(text=f"{filepath}", wraplength=400)
 
 def generate(filepath):#, prompt, txt_file):
+    # Check if a file has actually been selected
+    if not filepath:
+        generate_label.config(text="Please select a file first.", wraplength=400)
+        return # <--- Stop execution if no file
     
     results = run(file_paths=[filepath])
 
@@ -46,24 +51,33 @@ root.geometry("500x400") # Set a default size for the window
 content_frame = tk.Frame(root, padx=10, pady=10)
 content_frame.pack(expand=True, fill='both')
 
-# Label to display the selected file path
-# It starts with an instructional message
-file_path_label = Label(
-    content_frame,
-    text="No file selected.",
-    pady=20
-)
-file_path_label.pack()
-
 filepath = ""
+file_browse_frame = tk.Frame(content_frame)
+file_browse_frame.pack(pady=10)
+
 
 # Button to trigger the file browser dialog
 browse_button = Button(
-    content_frame,
+    file_browse_frame,
     text="Browse for File",
     command=browse_file
 )
-browse_button.pack(pady=10)
+browse_button.pack(side='right', padx=(10, 0))
+
+# Label to display the selected file path
+# It starts with an instructional message
+file_path_label = Label(
+    file_browse_frame,
+    text="No file selected.",
+    wraplength=350,
+    justify='left'
+)
+file_path_label.pack(side='left', fill='x', expand=True)
+
+
+separator = ttk.Separator(content_frame, orient='horizontal') # <--- ADDED
+separator.pack(fill='x', pady=10) # <--- ADDED
+
 
 # Button to trigger txt conversion
 generate_button = Button(
