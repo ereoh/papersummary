@@ -71,7 +71,7 @@ def open_link(event):
 
 # --- Create the main window ---
 root = tk.Tk()
-root.title("PaperSummary")
+root.title("papersummary")
 root.geometry("700x1000") # Set a default size for the window
 
 # Variables
