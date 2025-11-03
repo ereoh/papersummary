@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools >= 61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "papersummary"
+version = "0.0.1"
+
+dependencies = [
+    "PyPDF2",
+    "pyinstaller",
+    "python-pptx"
+]
+
+[tool.setuptools.packages.find]
+# Automatically find all packages starting in root directory
+where = ["papersummary"]

@@ -10,12 +10,12 @@ cd papersummary/
 
 # (optional, highly reccomended)
 # Use a virtual environment
-python -m venv papersummary_venv
+python -m venv venv
 
 # activate on Linux
-source papersummary_venv/bin/activate
+source venv/bin/activate
 # activate on Windows
-papersummary_venv\Scripts\Activate.ps1
+venv\Scripts\Activate.ps1
 
 # install library dependencies
 pip install -r requirements.txt
@@ -28,9 +28,9 @@ deactivate
 0. If you used a virtual environment, activate it:
 ```
 # activate on Linux
-source papersummary_venv/bin/activate
+source venv/bin/activate
 # activate on Windows
-papersummary_venv\Scripts\Activate.ps1
+venv\Scripts\Activate.ps1
 ```
 1. Pass any number of PDFs to script:
 
