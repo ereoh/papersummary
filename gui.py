@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 from tkinter import filedialog, Label, Button
+from tkinter import font as tkFont
 
 import pyperclip
 import webbrowser
@@ -160,14 +161,35 @@ copy_button = Button(
 )
 copy_button.pack(pady=10)
 
+# Footer
+footer_frame = tk.Frame(root, bg="#f0f0f0")
+footer_frame.pack(
+    side=tk.BOTTOM, 
+    fill=tk.X  # Make the frame fill the entire width
+)
+footer_font = tkFont.Font(family="Helvetica", size=10, slant="italic")
+link_font = tkFont.Font(family="Helvetica", size=10, underline=True)
+
+# Developer Credits
+author_label = tk.Label(
+    footer_frame,
+    text="Created by Ere Oh",
+    font=footer_font,
+    fg="grey",
+    bg="#f0f0f0" # Match the frame background
+)
+# Pack it to the left side of the footer_frame
+author_label.pack(side=tk.LEFT, padx=(10, 10)) # Add 10px padding on the left
 # Link to Github page
 link_label = tk.Label(
-    root, 
-    text="Github", 
+    footer_frame,
+    text="Github",
+    font=link_font,
     fg="blue",
-    cursor="hand2"
+    cursor="hand2",
+    bg="#f0f0f0"
 )
-link_label.pack(side=tk.BOTTOM, pady=10)
+link_label.pack(side=tk.LEFT)
 
 link_label.bind("<Button-1>", open_link)
 
