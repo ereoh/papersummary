@@ -1,6 +1,8 @@
 # Other Files
 *.pdf
 *.txt
+*.docx
+*.pptx
 !requirements.txt
 
 # Byte-compiled / optimized / DLL files

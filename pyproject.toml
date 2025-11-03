@@ -9,7 +9,8 @@ version = "0.0.1"
 dependencies = [
     "PyPDF2",
     "pyinstaller",
-    "python-pptx"
+    "python-pptx",
+    "python-docx"
 ]
 
 [tool.setuptools.packages.find]

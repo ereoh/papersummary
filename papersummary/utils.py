@@ -22,9 +22,9 @@ def remove_references(text: str) -> str:
         # Ensure it's in the latter half
         if index > half_length:
             text = text[:index]
-        else:
-            print("\tThe word 'References' is within the first half. Writing the entire text.")
-    else:
-        print("\tThe word 'References' was not found in the latter half of the document. Writing the entire text.")
+        # else:
+        #     print("\tThe word 'References' is within the first half. Writing the entire text.")
+    # else:
+    #     print("\tThe word 'References' was not found in the latter half of the document. Writing the entire text.")
 
     return text

@@ -6,12 +6,14 @@ from typing import List
 from papersummary.base import BaseTextExtractor
 from papersummary.pdf2txt import PDF2TextExtractor
 from papersummary.pptx2txt import PPTX2TextExtractor
+from papersummary.docx2txt import DOCX2TextExtractor
 
 prompt = "Write a clear, concise, objective summary for the following document:"
 
 supported_filetypes = [
     PDF2TextExtractor,
-    PPTX2TextExtractor
+    PPTX2TextExtractor,
+    DOCX2TextExtractor
 ]
 
 def run(file_paths: List[str | Path]) -> None:
