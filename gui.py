@@ -1,26 +1,34 @@
 import tkinter as tk
 from tkinter import filedialog, Label, Button
 
-from pdf2txt import generate_prompt
+from papersummary.main import run, SUPPORTED_FILETYPES
+from papersummary.utils import add_regex_filter
+
+FILE_BROWSER_FILTER = (
+    ("Supported Files", add_regex_filter(SUPPORTED_FILETYPES)), 
+    ("all files", "*.*")
+)
 
 def browse_file():
     """
     Opens a file dialog to select a file and updates the label with the selected file path.
     """
-    global pdf_filepath
+    global filepath
     filepath = filedialog.askopenfilename(
-        initialdir="./",  # You can set an initial directory
-        title="Select a PDF",
-        filetypes=(("PDF files", "*.pdf"), ("all files", "*.*"))
+        initialdir="./",
+        title="Select a File",
+        filetypes=FILE_BROWSER_FILTER
     )
     if filepath:
-        pdf_filepath = filepath
+        filepath = filepath
         # Update the label to show the selected file path
         file_path_label.config(text=f"Selected File: {filepath}", wraplength=400)
 
-def generate(pdf_file):#, prompt, txt_file):
+def generate(filepath):#, prompt, txt_file):
     
-    success, msg = generate_prompt(pdf_file=pdf_filepath)
+    results = run(file_paths=[filepath])
+
+    success, msg = results[0]
     
     if not success:
         generate_label.config(text=msg, wraplength=400)
@@ -29,7 +37,7 @@ def generate(pdf_file):#, prompt, txt_file):
 
 # --- Create the main window ---
 root = tk.Tk()
-root.title("File Browser GUI")
+root.title("PaperSummary")
 root.geometry("500x400") # Set a default size for the window
 
 # --- Create and configure widgets ---
@@ -47,7 +55,7 @@ file_path_label = Label(
 )
 file_path_label.pack()
 
-pdf_filepath = ""
+filepath = ""
 
 # Button to trigger the file browser dialog
 browse_button = Button(
@@ -61,7 +69,7 @@ browse_button.pack(pady=10)
 generate_button = Button(
     content_frame,
     text="Generate Prompt",
-    command=lambda: generate(pdf_file=pdf_filepath)
+    command=lambda: generate(filepath=filepath)
 )
 generate_button.pack(pady=10)
 

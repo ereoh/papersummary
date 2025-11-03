@@ -1,6 +1,8 @@
 """Utilities
 """
 
+from typing import List
+
 def add_prompt_txt(txt_file: str, prompt: str):
     # add prompt to top of file
     with open(txt_file, 'r') as file:
@@ -28,3 +30,11 @@ def remove_references(text: str) -> str:
     #     print("\tThe word 'References' was not found in the latter half of the document. Writing the entire text.")
 
     return text
+
+def add_regex_filter(extensions: List[str]) -> List[str]:
+    output = []
+
+    for s in extensions:
+        output.append(f"*{s}")
+
+    return tuple(output)

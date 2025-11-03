@@ -1,7 +1,7 @@
 import sys
 import os
 from pathlib import Path
-from typing import List
+from typing import List, Tuple, Dict
 
 from papersummary.base import BaseTextExtractor
 from papersummary.pdf2txt import PDF2TextExtractor
@@ -10,28 +10,29 @@ from papersummary.docx2txt import DOCX2TextExtractor
 
 prompt = "Write a clear, concise, objective summary for the following document:"
 
-supported_filetypes = [
+TEXT_EXTRACTORS: list = [
     PDF2TextExtractor,
     PPTX2TextExtractor,
     DOCX2TextExtractor
 ]
+converters: dict = {}
+for extractor_class in TEXT_EXTRACTORS:
+    
+    extractor = extractor_class(
+        default_prompt = prompt
+    )
 
-def run(file_paths: List[str | Path]) -> None:
+    for extension in extractor.supported_extensions:
+        converters[extension] = extractor
+
+SUPPORTED_FILETYPES: list = converters.keys()
+
+def run(file_paths: List[str]) -> List[Tuple[bool, str]]:
     """Runs as the main entry point for the script."""
 
-    print(f"Converting {len(file_paths)} PDF files...")
+    print(f"Converting {len(file_paths)} files...")
 
-    converters = {}
-    for extractor_class in supported_filetypes:
-        
-        extractor = extractor_class(
-            default_prompt = prompt
-        )
-
-        for extension in extractor.supported_extensions:
-            converters[extension] = extractor
-
-
+    results = []
     for file in file_paths:
         file = Path(file)
         if not file.is_file():
@@ -47,10 +48,11 @@ def run(file_paths: List[str | Path]) -> None:
 
         for extension,extractor in converters.items():
             if filetype == extension:
-                extractor(
-                    file = file,
-                )
+                success, msg = extractor(file = file)
+                results.append((success, msg))
                 break
+
+    return results
 
 
         
@@ -63,5 +65,5 @@ if __name__ == "__main__":
         print("Usage: python papersummary.py <pdf_file1> <pdf_file2> ...")
         sys.exit(1)
     # Get a list of Path objects for each provided argument
-    file_paths = [Path(arg) for arg in sys.argv[1:]]
+    file_paths = [str(arg) for arg in sys.argv[1:]]
     run(file_paths)
