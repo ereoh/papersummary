@@ -3,12 +3,14 @@ import os
 from pathlib import Path
 from typing import List, Tuple, Dict
 
+import pyperclip
+
 from papersummary.base import BaseTextExtractor
 from papersummary.pdf2txt import PDF2TextExtractor
 from papersummary.pptx2txt import PPTX2TextExtractor
 from papersummary.docx2txt import DOCX2TextExtractor
 
-prompt = "Write a clear, concise, objective summary for the following document:"
+DEFAULT_PROMPT = "Write a clear, concise, objective summary for the following document:"
 
 TEXT_EXTRACTORS: list = [
     PDF2TextExtractor,
@@ -19,7 +21,7 @@ converters: dict = {}
 for extractor_class in TEXT_EXTRACTORS:
     
     extractor = extractor_class(
-        default_prompt = prompt
+        default_prompt = DEFAULT_PROMPT
     )
 
     for extension in extractor.supported_extensions:
@@ -27,7 +29,11 @@ for extractor_class in TEXT_EXTRACTORS:
 
 SUPPORTED_FILETYPES: list = converters.keys()
 
-def run(file_paths: List[str]) -> List[Tuple[bool, str]]:
+def run(
+        file_paths: List[str],
+        prompt: str = DEFAULT_PROMPT,
+        copy_to_clipoard: bool = False
+    ) -> List[Tuple[bool, str, str]]:
     """Runs as the main entry point for the script."""
 
     print(f"Converting {len(file_paths)} files...")
@@ -35,11 +41,11 @@ def run(file_paths: List[str]) -> List[Tuple[bool, str]]:
     results = []
     for file in file_paths:
         file = Path(file)
+        txt_file = file.with_suffix(".txt")
         if not file.is_file():
             print(f"Error: {file} does not exist. Skipping...")
             continue
 
-        # generate_prompt(pdf_file=file, prompt=prompt)
         filetype = file.suffix
 
         if filetype not in converters.keys():
@@ -48,17 +54,21 @@ def run(file_paths: List[str]) -> List[Tuple[bool, str]]:
 
         for extension,extractor in converters.items():
             if filetype == extension:
-                success, msg = extractor(file = file)
-                results.append((success, msg))
+                success, msg = extractor(file = file, prompt = prompt)
+                with open(txt_file, 'r') as file:
+                    contents = file.read()
+                results.append((success, msg, contents))
                 break
+        if copy_to_clipoard:
+            
+            pyperclip.copy(contents)
+            print("Output copied to clipboard!")
 
-    return results
-
-
-        
 
     print("\nCopy everything in txt file, and paste into any AI Chat of your choice.")
     print("Note: The AI chat might not be able to handle very large files.")
+
+    return results
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:

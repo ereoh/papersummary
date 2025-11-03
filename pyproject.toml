@@ -10,7 +10,9 @@ dependencies = [
     "PyPDF2",
     "pyinstaller",
     "python-pptx",
-    "python-docx"
+    "python-docx",
+    "pyperclip",
+    "webbrowser"
 ]
 
 [tool.setuptools.packages.find]
