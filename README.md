@@ -1,5 +1,10 @@
 # papersummary
-Lightweight pipeline for summarizing PDFs
+Lightweight pipeline for summarizing documents.
+
+Supported Document Types:
+- `.pdf`
+- `.pptx`
+- `.docx`
 
 ## Set Up
 Be sure [Python 3](https://www.python.org/downloads/) is installed.
@@ -18,7 +23,7 @@ source venv/bin/activate
 venv\Scripts\Activate.ps1
 
 # install library dependencies
-pip install -r requirements.txt
+pip install -e .
 
 # to leave virtual environment:
 deactivate
@@ -26,16 +31,23 @@ deactivate
 
 ## Usage
 0. If you used a virtual environment, activate it:
-```
+```bash
 # activate on Linux
 source venv/bin/activate
 # activate on Windows
 venv\Scripts\Activate.ps1
 ```
-1. Pass any number of PDFs to script:
+### GUI
+```bash
+python gui.py
+```
+
+### Command Line
+OUTDATED!
+1. Pass any number of files to script:
 
 ```
-python papersummary.py <path to pdf> <path to pdf 2> ...
+python papersummary.py <path to file 1> <path to file 2> ...
 ```
 
 Each PDF will be converted to a `.txt` file in the same location as the original PDF file.
