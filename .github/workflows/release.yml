@@ -34,7 +34,7 @@ jobs:
       - name: Build with Nuitka
         uses: Nuitka/Nuitka-Action@main
         with:
-          script-name: papersummary
+          script-name: papersummary/gui.py
           # This plugin is essential for PySide6!
           enable-plugins: pyside6
           # Additional Nuitka arguments
@@ -42,7 +42,7 @@ jobs:
             --standalone
             --onefile
             --disable-console
-            --include-data-dir=your_assets_folder=assets
+          # --include-data-dir=your_assets_folder=assets
           # <--- Optional: Use --include-data-dir=SOURCE=DEST to add images, icons, etc.
           # <--- Example: --include-data-dir=images=images
 

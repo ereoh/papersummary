@@ -17,9 +17,9 @@ license-files = ["LICENSE"]
 readme = "README.md"
 
 dependencies = [
-    "PyPDF2",
+    # "PyPDF2",
     "pypdf",
-    "pyinstaller",
+    # "pyinstaller",
     "python-pptx",
     "python-docx",
     "pyperclip",
