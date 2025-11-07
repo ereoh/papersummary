@@ -3,14 +3,11 @@
 name: 'Build & Release Windows EXE'
 
 # This workflow runs only when you push a new tag in the format v*.*.*
-# on:
-#   push:
-#     tags:
-#       - 'v*.*.*'
 on:
   push:
-    branches:
-      - main
+    tags:
+      - 'v*.*.*'
+
 
 # A single job that builds and releases the .exe
 jobs:
