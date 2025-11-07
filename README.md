@@ -39,7 +39,7 @@ venv\Scripts\Activate.ps1
 ```
 ### GUI
 ```bash
-python gui.py
+papersummary
 ```
 
 ### Command Line

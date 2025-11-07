@@ -23,8 +23,17 @@ dependencies = [
     "python-docx",
     "pyperclip",
     "PySide6",
-    # "web-browser"
 ]
+[project.optional-dependencies]
+dev = [
+    "black",
+    "pytest",
+    "pylint"
+]
+full = ["papersummary[dev]"]
+
+[project.scripts]
+papersummary = "papersummary.gui:main"
 
 [tool.setuptools.packages.find]
 # Automatically find all packages starting in root directory
@@ -33,7 +42,33 @@ where = ["."]
 [project.urls]
 # Documentation = "TBD"
 Repository = "https://github.com/ereoh/papersummary"
-"Bug Tracker" = "https://github.com/ereoh/papersummary/issues"
 
 [tool.setuptools.dynamic]
 version = {attr = "papersummary.__version__"}
+
+# black
+[tool.black]
+line-length = 88
+target-version = ['py38', 'py39', 'py310']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | dist
+)/
+'''
+[tool.pylint]
+disable = "line-too-long"  # Disable "line-too-long"
+max-line-length = 120  # Optionally set the max line length to 120 characters
+# output-format = "text"  # Optional: change the output format of pylint reports
+# load-plugins = ["pylint_django"]  # Example for loading any plugins (if applicable)
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+addopts = "--strict-markers --import-mode=importlib"
+testpaths = ["tests"]

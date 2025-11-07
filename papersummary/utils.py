@@ -1,15 +1,16 @@
-"""Utilities
-"""
+"""Utilities"""
 
-from typing import List
+from typing import List, Tuple
+
 
 def add_prompt_txt(txt_file: str, prompt: str):
     # add prompt to top of file
-    with open(txt_file, 'r') as file:
+    with open(txt_file, "r") as file:
         contents = file.read()
 
-    with open(txt_file, 'w') as file:
-        file.write(prompt + '\n' + contents)
+    with open(txt_file, "w") as file:
+        file.write(prompt + "\n" + contents)
+
 
 def remove_references(text: str) -> str:
     total_length = len(text)
@@ -31,7 +32,8 @@ def remove_references(text: str) -> str:
 
     return text
 
-def add_regex_filter(extensions: List[str]) -> List[str]:
+
+def add_regex_filter(extensions: List[str]) -> Tuple[str]:
     output = []
 
     for s in extensions:

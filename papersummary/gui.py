@@ -1,11 +1,17 @@
 import sys
 import pyperclip
-# import webbrowser
 from PySide6.QtWidgets import (
-    QApplication, QMainWindow, QWidget,
-    QVBoxLayout, QHBoxLayout, QPushButton,
-    QLabel, QTextEdit, QFileDialog, QFrame,
-    QCheckBox
+    QApplication,
+    QMainWindow,
+    QWidget,
+    QVBoxLayout,
+    QHBoxLayout,
+    QPushButton,
+    QLabel,
+    QTextEdit,
+    QFileDialog,
+    QFrame,
+    QCheckBox,
 )
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QFont, QCursor
@@ -14,9 +20,10 @@ from papersummary.main import run, SUPPORTED_FILETYPES, DEFAULT_PROMPT
 from papersummary.utils import add_regex_filter
 
 FILE_BROWSER_FILTER = (
-    ("Supported Files", add_regex_filter(SUPPORTED_FILETYPES)), 
-    ("all files", "*.*")
+    ("Supported Files", add_regex_filter(SUPPORTED_FILETYPES)),
+    ("all files", "*.*"),
 )
+
 
 # PySide application class
 class PaperSummaryApp(QMainWindow):
@@ -43,7 +50,7 @@ class PaperSummaryApp(QMainWindow):
         title_label.setFont(title_font)
         title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.main_layout.addWidget(title_label)
-        
+
         # 2. File Browsing Section (QHBoxLayout)
         file_browse_layout = QHBoxLayout()
 
@@ -54,8 +61,10 @@ class PaperSummaryApp(QMainWindow):
 
         self.file_path_label = QLabel("No file selected.")
         self.file_path_label.setWordWrap(True)
-        # self.file_path_label.setStyleSheet("border: 1px solid #ccc; padding: 5px; background-color: #f7f7f7;")
-        self.file_path_label.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
+        self.file_path_label.setStyleSheet("padding: 5px;")
+        self.file_path_label.setTextInteractionFlags(
+            Qt.TextInteractionFlag.TextSelectableByMouse
+        )
         file_browse_layout.addWidget(self.file_path_label)
 
         self.main_layout.addLayout(file_browse_layout)
@@ -70,13 +79,13 @@ class PaperSummaryApp(QMainWindow):
         self.prompt_text.setFixedHeight(80)
         self.prompt_text.setText(DEFAULT_PROMPT)
         self.main_layout.addWidget(self.prompt_text)
-        
+
         # 4. Options
         options_layout = QHBoxLayout()
         self.clipboard_checkbox = QCheckBox("Copy to Clipboard")
         self.clipboard_checkbox.setChecked(True)
         options_layout.addWidget(self.clipboard_checkbox)
-        options_layout.addStretch(1) # Push checkbox to the left
+        options_layout.addStretch(1)  # Push checkbox to the left
         self.main_layout.addLayout(options_layout)
 
         # Separator Line (QFrame)
@@ -97,14 +106,18 @@ class PaperSummaryApp(QMainWindow):
         self.main_layout.addWidget(self.generate_button)
 
         # 6. Status and Output Label
-        self.generate_label = QLabel("No summary generated yet. Select a file and click 'Generate Summary'.")
+        self.generate_label = QLabel(
+            "No summary generated yet. Select a file and click 'Generate Summary'."
+        )
         self.generate_label.setWordWrap(True)
         glf = QFont("Arial", 10)
-        glf.setItalic(True) 
+        glf.setItalic(True)
         self.generate_label.setFont(glf)
-        self.generate_label.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft)
+        self.generate_label.setAlignment(
+            Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft
+        )
         self.main_layout.addWidget(self.generate_label)
-        
+
         # 7. Copy Output Button
         self.copy_button = QPushButton("Copy Last Output to Clipboard")
         self.copy_button.setStyleSheet(
@@ -113,7 +126,7 @@ class PaperSummaryApp(QMainWindow):
         )
         self.copy_button.clicked.connect(self.copy_output)
         self.main_layout.addWidget(self.copy_button)
-        
+
         # Add stretch to push content to the top
         self.main_layout.addStretch(1)
 
@@ -135,8 +148,12 @@ class PaperSummaryApp(QMainWindow):
         footer_layout.addWidget(author_label)
 
         # Github Link Label
-        link_label = QLabel('<a href="https://github.com/ereoh/papersummary">GitHub Repository</a>')
-        link_label.setOpenExternalLinks(True) # PySide handles this automatically for <a> tags
+        link_label = QLabel(
+            '<a href="https://github.com/ereoh/papersummary">GitHub Repository</a>'
+        )
+        link_label.setOpenExternalLinks(
+            True
+        )  # PySide handles this automatically for <a> tags
         link_label.setStyleSheet("color: blue; text-decoration: underline;")
         link_label.setCursor(QCursor(Qt.PointingHandCursor))
         footer_layout.addWidget(link_label)
@@ -151,14 +168,11 @@ class PaperSummaryApp(QMainWindow):
         wildcard_extensions = [f"*{ext}" for ext in SUPPORTED_FILETYPES]
         joined_extensions = " ".join(wildcard_extensions)
         filter_str = f"Supported Files ({joined_extensions});;all files (* . *)"
-        
+
         selected_path, _ = QFileDialog.getOpenFileName(
-            self,
-            "Select a Document File",
-            "./",
-            filter=filter_str
+            self, "Select a Document File", "./", filter=filter_str
         )
-        
+
         if selected_path:
             self.filepath = selected_path
             self.file_path_label.setText(self.filepath)
@@ -170,7 +184,7 @@ class PaperSummaryApp(QMainWindow):
         """
         # Reset output
         self.output_to_copy = ""
-        
+
         if not self.filepath:
             self.generate_label.setText("Please select a file first.")
             return
@@ -180,12 +194,12 @@ class PaperSummaryApp(QMainWindow):
 
         try:
             self.generate_label.setText("Processing file... Please wait.")
-            QApplication.processEvents() # Update GUI immediately
+            QApplication.processEvents()  # Update GUI immediately
 
             results = run(
                 file_paths=[self.filepath],
                 prompt=prompt,
-                copy_to_clipoard=copy_to_clipboard
+                copy_to_clipoard=copy_to_clipboard,
             )
 
             success, msg, output = results[0]
@@ -198,9 +212,9 @@ class PaperSummaryApp(QMainWindow):
                 if copy_to_clipboard:
                     pyperclip.copy(output)
                     status_message += "\n(Output copied to clipboard.)"
-                
+
                 self.generate_label.setText(status_message)
-                
+
         except Exception as e:
             error_msg = f"Unknown Exception: {e}"
             print(error_msg)
@@ -210,18 +224,28 @@ class PaperSummaryApp(QMainWindow):
         """Copies the last generated output to the system clipboard."""
         if len(self.output_to_copy) > 0:
             pyperclip.copy(self.output_to_copy)
-            current_text = self.generate_label.text().split('\n')[0] # Get the main status line
-            self.generate_label.setText(f"{current_text}\n(Output successfully copied to clipboard again.)")
+            current_text = self.generate_label.text().split("\n")[
+                0
+            ]  # Get the main status line
+            self.generate_label.setText(
+                f"{current_text}\n(Output successfully copied to clipboard again.)"
+            )
         else:
-            self.generate_label.setText("No output generated yet. Click 'Generate Summary' first.")
+            self.generate_label.setText(
+                "No output generated yet. Click 'Generate Summary' first."
+            )
 
-if __name__ == '__main__':
+
+def main():
     # 1. Initialize QApplication
     app = QApplication(sys.argv)
-    
+
     # 2. Create and show the main window
     window = PaperSummaryApp()
     window.show()
-    
+
     # 3. Start the event loop
     sys.exit(app.exec())
+
+if __name__ == "__main__":
+    main()
