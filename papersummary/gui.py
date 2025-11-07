@@ -2,6 +2,7 @@
 """Launches papersummry GUI"""
 
 import sys
+from pathlib import Path
 import pyperclip
 from PySide6.QtWidgets import (
     QApplication,
@@ -17,11 +18,14 @@ from PySide6.QtWidgets import (
     QCheckBox,
 )
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QFont, QCursor
+from PySide6.QtGui import QFont, QCursor, QFontDatabase
 
 from papersummary.main import run, SUPPORTED_FILETYPES
 from papersummary.utils import DEFAULT_PROMPT
 
+
+THIS_DIR = Path(__file__).parent
+TITLE_FONT_PATH = THIS_DIR / 'fonts' / 'Jua-Regular.ttf'
 
 # PySide application class
 class PaperSummaryApp(QMainWindow):
@@ -50,7 +54,16 @@ class PaperSummaryApp(QMainWindow):
         """
         # 1. Title Label
         title_label = QLabel("papersummary")
-        title_font = QFont("Arial", 16, QFont.Bold)
+        title_font = QFont("Arial", 20, QFont.Bold)
+        font_id = QFontDatabase.addApplicationFont(str(TITLE_FONT_PATH))
+        if font_id != -1:
+            font_name = QFontDatabase.applicationFontFamilies(font_id)[0]
+            title_font = QFont(font_name, 16)
+        else:
+            print("Failed to load font. Using Arial as a fallback.")
+
+        title_font.setUnderline(True)
+            
         title_label.setFont(title_font)
         title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.main_layout.addWidget(title_label)
