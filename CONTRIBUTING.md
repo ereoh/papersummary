@@ -4,7 +4,7 @@ Thanks for helping this library! I'm hoping to keep it open-source and extensibl
 
 Some Resources:
   * Bugs or Feature Requests? Head to our [Github Issues](https://github.com/ereoh/papersummary/issues).
-  * Questions?
+  * Questions? Check out our [Discussions Page](https://github.com/ereoh/papersummary/discussions).
 
 ## Testing
 
