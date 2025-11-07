@@ -51,10 +51,14 @@ jobs:
       - name: Package as .zip
         shell: pwsh
         run: |
-          $appName = "papersummary" # <--- IMPORTANT: Change this
+          $appName = "papersummary"
           $tag = $env:GITHUB_REF_NAME
           $zipName = "${appName}-${tag}-Windows.zip"
-          Compress-Archive -Path "${appName}.exe" -DestinationPath $zipName
+          
+          # --- THIS IS THE FIX ---
+          # Point to the correct path where Nuitka built the .exe
+          Compress-Archive -Path "build\gui.dist\${appName}.exe" -DestinationPath $zipName
+          
           echo "ZIP_NAME=$zipName" >> $env:GITHUB_ENV
 
       # 6. Create the GitHub Release and upload the .zip
