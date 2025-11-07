@@ -4,7 +4,17 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "papersummary"
-version = "0.0.1"
+dynamic = ["version"]
+description = "Lightweight pipeline for summarizing documents."
+requires-python = ">=3.10"
+
+authors = [
+    {name = "Erebus Oh, email = TBD@example.com"},
+]
+
+license = "MIT"
+license-files = ["LICENSE"] 
+readme = "README.md"
 
 dependencies = [
     "PyPDF2",
@@ -12,9 +22,18 @@ dependencies = [
     "python-pptx",
     "python-docx",
     "pyperclip",
-    "webbrowser"
+    # "tk",
+    # "web-browser"
 ]
 
 [tool.setuptools.packages.find]
 # Automatically find all packages starting in root directory
-where = ["papersummary"]
+where = ["."]
+
+[project.urls]
+# Documentation = "TBD"
+Repository = "https://github.com/ereoh/papersummary"
+"Bug Tracker" = "https://github.com/ereoh/papersummary/issues"
+
+[tool.setuptools.dynamic]
+version = {attr = "papersummary.__version__"}
