@@ -2,15 +2,15 @@
 Convert ppts text to txt
 """
 
-from papersummary.base import BaseTextExtractor
+from papersummary.extractors.base import BaseTextExtractor
 from papersummary.utils import DEFAULT_PROMPT
 
 from pptx import Presentation
 
 
 class PPTX2TextExtractor(BaseTextExtractor):
-    """Microsoft .pptx text extractor 
-    """
+    """Microsoft .pptx text extractor"""
+
     def __init__(
         self,
         default_prompt: str = DEFAULT_PROMPT,
@@ -19,7 +19,7 @@ class PPTX2TextExtractor(BaseTextExtractor):
 
         Args:
             default_prompt (str, optional): Summary prompt to use. Defaults to DEFAULT_PROMPT.
-        """ 
+        """
         super().__init__(supported_extensions=[".pptx"], default_prompt=default_prompt)
 
     def _extract_text(self, file: str) -> str:

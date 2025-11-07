@@ -2,16 +2,15 @@
 Convert .pdf text to .txt
 """
 
-
-from papersummary.base import BaseTextExtractor
+from papersummary.extractors.base import BaseTextExtractor
 from papersummary.utils import DEFAULT_PROMPT
 
-import PyPDF2
+import pypdf
 
 
 class PDF2TextExtractor(BaseTextExtractor):
-    """.pdf text extractor 
-    """
+    """.pdf text extractor"""
+
     def __init__(
         self,
         default_prompt: str = DEFAULT_PROMPT,
@@ -20,7 +19,7 @@ class PDF2TextExtractor(BaseTextExtractor):
 
         Args:
             default_prompt (str, optional): Summary prompt to use. Defaults to DEFAULT_PROMPT.
-        """ 
+        """
         super().__init__(supported_extensions=[".pdf"], default_prompt=default_prompt)
 
     def _extract_text(self, file: str) -> str:
@@ -33,7 +32,7 @@ class PDF2TextExtractor(BaseTextExtractor):
             str: Extracted text.
         """
         with open(file, "rb") as f:
-            pdf_reader = PyPDF2.PdfReader(f)
+            pdf_reader = pypdf.PdfReader(f)
             text = ""
 
             for page in range(len(pdf_reader.pages)):

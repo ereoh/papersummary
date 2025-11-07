@@ -1,5 +1,5 @@
-"""Core papersummary
-"""
+"""Core papersummary"""
+
 import sys
 from pathlib import Path
 from typing import List, Tuple
@@ -26,9 +26,7 @@ SUPPORTED_FILETYPES: list = converters.keys()
 
 
 def run(
-    file_paths: List[str], 
-    prompt: str = DEFAULT_PROMPT, 
-    copy_to_clipoard: bool = False
+    file_paths: List[str], prompt: str = DEFAULT_PROMPT, copy_to_clipoard: bool = False
 ) -> List[Tuple[bool, str, str]]:
     """Runs as the main entry point for the script."""
 
@@ -51,7 +49,7 @@ def run(
         for extension, extractor in converters.items():
             if filetype == extension:
                 success, msg = extractor(file=file, prompt=prompt)
-                with open(txt_file, "r", encoding='utf-8') as file:
+                with open(txt_file, "r", encoding="utf-8") as file:
                     contents = file.read()
                 results.append((success, msg, contents))
                 break

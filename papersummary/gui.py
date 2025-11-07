@@ -1,6 +1,5 @@
 # pylint: disable=no-name-in-module,too-many-instance-attributes,too-many-statements,broad-exception-caught
-""" Launches papersummry GUI
-"""
+"""Launches papersummry GUI"""
 
 import sys
 import pyperclip
@@ -23,13 +22,13 @@ from PySide6.QtGui import QFont, QCursor
 from papersummary.main import run, SUPPORTED_FILETYPES
 from papersummary.utils import DEFAULT_PROMPT
 
+
 # PySide application class
 class PaperSummaryApp(QMainWindow):
-    """papersummary GUI Window
-    """    
+    """papersummary GUI Window"""
+
     def __init__(self):
-        """Initializes GUI Window
-        """        
+        """Initializes GUI Window"""
         super().__init__()
         self.filepath = ""
         self.output_to_copy = ""
@@ -67,9 +66,7 @@ class PaperSummaryApp(QMainWindow):
         self.file_path_label = QLabel("No file selected.")
         self.file_path_label.setWordWrap(True)
         self.file_path_label.setStyleSheet("padding: 5px;")
-        self.file_path_label.setTextInteractionFlags(
-            Qt.TextInteractionFlag.TextSelectableByMouse
-        )
+        self.file_path_label.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
         file_browse_layout.addWidget(self.file_path_label)
 
         self.main_layout.addLayout(file_browse_layout)
@@ -111,16 +108,12 @@ class PaperSummaryApp(QMainWindow):
         self.main_layout.addWidget(self.generate_button)
 
         # 6. Status and Output Label
-        self.generate_label = QLabel(
-            "No summary generated yet. Select a file and click 'Generate Summary'."
-        )
+        self.generate_label = QLabel("No summary generated yet. Select a file and click 'Generate Summary'.")
         self.generate_label.setWordWrap(True)
         glf = QFont("Arial", 10)
         glf.setItalic(True)
         self.generate_label.setFont(glf)
-        self.generate_label.setAlignment(
-            Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft
-        )
+        self.generate_label.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft)
         self.main_layout.addWidget(self.generate_label)
 
         # 7. Copy Output Button
@@ -156,12 +149,8 @@ class PaperSummaryApp(QMainWindow):
         footer_layout.addWidget(author_label)
 
         # Github Link Label
-        link_label = QLabel(
-            '<a href="https://github.com/ereoh/papersummary">GitHub Repository</a>'
-        )
-        link_label.setOpenExternalLinks(
-            True
-        )  # PySide handles this automatically for <a> tags
+        link_label = QLabel('<a href="https://github.com/ereoh/papersummary">GitHub Repository</a>')
+        link_label.setOpenExternalLinks(True)  # PySide handles this automatically for <a> tags
         link_label.setStyleSheet("color: blue; text-decoration: underline;")
         link_label.setCursor(QCursor(Qt.PointingHandCursor))
         footer_layout.addWidget(link_label)
@@ -175,9 +164,7 @@ class PaperSummaryApp(QMainWindow):
         joined_extensions = " ".join(wildcard_extensions)
         filter_str = f"Supported Files ({joined_extensions});;all files (* . *)"
 
-        selected_path, _ = QFileDialog.getOpenFileName(
-            self, "Select a Document File", "./", filter=filter_str
-        )
+        selected_path, _ = QFileDialog.getOpenFileName(self, "Select a Document File", "./", filter=filter_str)
 
         if selected_path:
             self.filepath = selected_path
@@ -230,16 +217,10 @@ class PaperSummaryApp(QMainWindow):
         """Copies the last generated output to the system clipboard."""
         if len(self.output_to_copy) > 0:
             pyperclip.copy(self.output_to_copy)
-            current_text = self.generate_label.text().split("\n")[
-                0
-            ]  # Get the main status line
-            self.generate_label.setText(
-                f"{current_text}\n(Output successfully copied to clipboard again.)"
-            )
+            current_text = self.generate_label.text().split("\n")[0]  # Get the main status line
+            self.generate_label.setText(f"{current_text}\n(Output successfully copied to clipboard again.)")
         else:
-            self.generate_label.setText(
-                "No output generated yet. Click 'Generate Summary' first."
-            )
+            self.generate_label.setText("No output generated yet. Click 'Generate Summary' first.")
 
 
 def main():
@@ -250,6 +231,7 @@ def main():
     window = PaperSummaryApp()
     window.show()
     sys.exit(app.exec())
+
 
 if __name__ == "__main__":
     main()

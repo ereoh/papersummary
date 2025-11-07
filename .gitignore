@@ -3,8 +3,7 @@
 *.txt
 *.docx
 *.pptx
-!requirements.txt
-test.py
+**.xml
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
