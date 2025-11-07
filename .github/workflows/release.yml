@@ -26,7 +26,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10' # Match this to your development version
+          python-version: '3.10'
           architecture: 'x64'
           
       # 3. Install your project's dependencies
@@ -41,25 +41,17 @@ jobs:
         with:
           nuitka-version: main
           script-name: papersummary/gui.py
-          # This plugin is essential for PySide6!
           mode: standalone
           enable-plugins: pyside6
-          # Additional Nuitka arguments
-          # nuitka-args: |
-          #   --onefile
-          #   --disable-console
-          # # --include-data-dir=fonts=fonts
           include-data-dir: |
             papersummary/fonts=fonts
-
-          # <--- IMPORTANT: Change this to your app's name
           output-file: papersummary 
 
       # 5. Package the .exe into a .zip file
       - name: Package as .zip
         shell: pwsh
         run: |
-          $appName = "YourAppName" # <--- IMPORTANT: Change this
+          $appName = "papersummary" # <--- IMPORTANT: Change this
           $tag = $env:GITHUB_REF_NAME
           $zipName = "${appName}-${tag}-Windows.zip"
           Compress-Archive -Path "${appName}.exe" -DestinationPath $zipName
