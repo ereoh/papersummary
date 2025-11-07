@@ -1,10 +1,15 @@
-import tkinter as tk
-from tkinter import ttk
-from tkinter import filedialog, Label, Button
-from tkinter import font as tkFont
-
+import sys
 import pyperclip
-import webbrowser
+# import webbrowser
+from PySide6.QtWidgets import (
+    QApplication, QMainWindow, QWidget,
+    QVBoxLayout, QHBoxLayout, QPushButton,
+    QLabel, QTextEdit, QFileDialog, QFrame,
+    QCheckBox
+)
+from PySide6.QtCore import Qt, Signal
+from PySide6.QtGui import QFont, QCursor
+
 from papersummary.main import run, SUPPORTED_FILETYPES, DEFAULT_PROMPT
 from papersummary.utils import add_regex_filter
 
@@ -13,185 +18,210 @@ FILE_BROWSER_FILTER = (
     ("all files", "*.*")
 )
 
-def browse_file():
-    """
-    Opens a file dialog to select a file and updates the label with the selected file path.
-    """
-    global filepath
-    selected_path = filedialog.askopenfilename(
-        initialdir="./",
-        title="Select a File",
-        filetypes=FILE_BROWSER_FILTER
-    )
-    if selected_path:
-        filepath = selected_path
-        # Update the label to show the selected file path
-        file_path_label.config(text=f"{filepath}", wraplength=400)
+# PySide application class
+class PaperSummaryApp(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.filepath = ""
+        self.output_to_copy = ""
+        self.setWindowTitle("papersummary")
+        self.setMinimumSize(700, 1000)
 
-def generate(filepath: str, prompt: str, copy_to_clipoard: bool):#, txt_file):
-    global output_to_copy
-    # Check if a file has actually been selected
-    if not filepath:
-        generate_label.config(text="Please select a file first.", wraplength=400)
-        return # <--- Stop execution if no file
-    
-    try:
-    
-        results = run(
-            file_paths=[filepath], 
-            prompt=prompt,
-            copy_to_clipoard=copy_to_clipoard
+        self.central_widget = QWidget()
+        self.setCentralWidget(self.central_widget)
+
+        self.main_layout = QVBoxLayout(self.central_widget)
+        self.main_layout.setContentsMargins(20, 20, 20, 20)
+        self.main_layout.setSpacing(15)
+
+        self._init_ui()
+
+    def _init_ui(self):
+        # 1. Title Label
+        title_label = QLabel("papersummary")
+        title_font = QFont("Arial", 16, QFont.Bold)
+        title_label.setFont(title_font)
+        title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.main_layout.addWidget(title_label)
+        
+        # 2. File Browsing Section (QHBoxLayout)
+        file_browse_layout = QHBoxLayout()
+
+        browse_button = QPushButton("Browse for File")
+        browse_button.setFont(QFont("Arial", 10, QFont.Bold))
+        browse_button.clicked.connect(self.browse_file)
+        file_browse_layout.addWidget(browse_button)
+
+        self.file_path_label = QLabel("No file selected.")
+        self.file_path_label.setWordWrap(True)
+        # self.file_path_label.setStyleSheet("border: 1px solid #ccc; padding: 5px; background-color: #f7f7f7;")
+        self.file_path_label.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
+        file_browse_layout.addWidget(self.file_path_label)
+
+        self.main_layout.addLayout(file_browse_layout)
+
+        # 3. Prompt Text Area
+        prompt_label = QLabel("Custom Prompt (optional):")
+        prompt_label.setFont(QFont("Arial", 10))
+        self.main_layout.addWidget(prompt_label)
+
+        self.prompt_text = QTextEdit()
+        self.prompt_text.setPlaceholderText("Enter your custom summary request here...")
+        self.prompt_text.setFixedHeight(80)
+        self.prompt_text.setText(DEFAULT_PROMPT)
+        self.main_layout.addWidget(self.prompt_text)
+        
+        # 4. Options
+        options_layout = QHBoxLayout()
+        self.clipboard_checkbox = QCheckBox("Copy to Clipboard")
+        self.clipboard_checkbox.setChecked(True)
+        options_layout.addWidget(self.clipboard_checkbox)
+        options_layout.addStretch(1) # Push checkbox to the left
+        self.main_layout.addLayout(options_layout)
+
+        # Separator Line (QFrame)
+        separator = QFrame()
+        separator.setFrameShape(QFrame.HLine)
+        separator.setFrameShadow(QFrame.Sunken)
+        self.main_layout.addWidget(separator)
+
+        # 5. Generate Button
+        self.generate_button = QPushButton("Generate Summary")
+        self.generate_button.setFont(QFont("Arial", 12, QFont.Bold))
+        self.generate_button.setStyleSheet(
+            "QPushButton { background-color: #0078D4; color: white; padding: 10px; border-radius: 5px; }"
+            "QPushButton:hover { background-color: #005A9E; }"
+            "QPushButton:pressed { background-color: #003C8F; }"
         )
+        self.generate_button.clicked.connect(self.start_generation)
+        self.main_layout.addWidget(self.generate_button)
 
-        success, msg, output = results[0]
+        # 6. Status and Output Label
+        self.generate_label = QLabel("No summary generated yet. Select a file and click 'Generate Summary'.")
+        self.generate_label.setWordWrap(True)
+        glf = QFont("Arial", 10)
+        glf.setItalic(True) 
+        self.generate_label.setFont(glf)
+        self.generate_label.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft)
+        self.main_layout.addWidget(self.generate_label)
+        
+        # 7. Copy Output Button
+        self.copy_button = QPushButton("Copy Last Output to Clipboard")
+        self.copy_button.setStyleSheet(
+            "QPushButton { background-color: #4CAF50; color: white; padding: 8px; border-radius: 5px; }"
+            "QPushButton:hover { background-color: #45a049; }"
+        )
+        self.copy_button.clicked.connect(self.copy_output)
+        self.main_layout.addWidget(self.copy_button)
+        
+        # Add stretch to push content to the top
+        self.main_layout.addStretch(1)
+
+        # 8. Footer (at the bottom of the window, outside main_layout stretch)
+        self._init_footer()
+
+    def _init_footer(self):
+        # Footer is typically added to the main window's status bar or as a separate section
+        footer_widget = QWidget()
+        footer_layout = QHBoxLayout(footer_widget)
+        footer_layout.setContentsMargins(10, 5, 10, 5)
+
+        # Author Label
+        author_label = QLabel("Created by Ere Oh")
+        alf = QFont("Helvetica", 9)
+        alf.setItalic(True)
+        author_label.setFont(alf)
+        author_label.setStyleSheet("color: grey;")
+        footer_layout.addWidget(author_label)
+
+        # Github Link Label
+        link_label = QLabel('<a href="https://github.com/ereoh/papersummary">GitHub Repository</a>')
+        link_label.setOpenExternalLinks(True) # PySide handles this automatically for <a> tags
+        link_label.setStyleSheet("color: blue; text-decoration: underline;")
+        link_label.setCursor(QCursor(Qt.PointingHandCursor))
+        footer_layout.addWidget(link_label)
+
+        # Add the footer layout to the main window's central widget layout
+        self.main_layout.addWidget(footer_widget)
+
+    # --- Core Logic Functions ---
+
+    def browse_file(self):
+        """Opens a file dialog to select a file."""
+        wildcard_extensions = [f"*{ext}" for ext in SUPPORTED_FILETYPES]
+        joined_extensions = " ".join(wildcard_extensions)
+        filter_str = f"Supported Files ({joined_extensions});;all files (* . *)"
+        
+        selected_path, _ = QFileDialog.getOpenFileName(
+            self,
+            "Select a Document File",
+            "./",
+            filter=filter_str
+        )
+        
+        if selected_path:
+            self.filepath = selected_path
+            self.file_path_label.setText(self.filepath)
+            self.generate_label.setText(f"File selected: {self.filepath}")
+
+    def start_generation(self):
+        """
+        Gathers input and calls the external run function.
+        """
+        # Reset output
+        self.output_to_copy = ""
+        
+        if not self.filepath:
+            self.generate_label.setText("Please select a file first.")
+            return
+
+        prompt = self.prompt_text.toPlainText().strip()
+        copy_to_clipboard = self.clipboard_checkbox.isChecked()
+
+        try:
+            self.generate_label.setText("Processing file... Please wait.")
+            QApplication.processEvents() # Update GUI immediately
+
+            results = run(
+                file_paths=[self.filepath],
+                prompt=prompt,
+                copy_to_clipoard=copy_to_clipboard
+            )
+
+            success, msg, output = results[0]
+
+            if not success:
+                self.generate_label.setText(f"Error generating summary: {msg}")
+            else:
+                self.output_to_copy = output
+                status_message = f"Summary successfully generated: {msg}"
+                if copy_to_clipboard:
+                    pyperclip.copy(output)
+                    status_message += "\n(Output copied to clipboard.)"
+                
+                self.generate_label.setText(status_message)
+                
+        except Exception as e:
+            error_msg = f"Unknown Exception: {e}"
+            print(error_msg)
+            self.generate_label.setText(f"A critical error occurred. Details: {e}")
+
+    def copy_output(self):
+        """Copies the last generated output to the system clipboard."""
+        if len(self.output_to_copy) > 0:
+            pyperclip.copy(self.output_to_copy)
+            current_text = self.generate_label.text().split('\n')[0] # Get the main status line
+            self.generate_label.setText(f"{current_text}\n(Output successfully copied to clipboard again.)")
+        else:
+            self.generate_label.setText("No output generated yet. Click 'Generate Summary' first.")
+
+if __name__ == '__main__':
+    # 1. Initialize QApplication
+    app = QApplication(sys.argv)
     
-        if not success:
-            generate_label.config(text=msg, wraplength=400)
-        else:
-            generate_label.config(text=f"Prompt generated: {msg}", wraplength=400)
-            output_to_copy = output
-    except Exception as e:
-        print(f"Unknown Exception: {e}")
-        generate_label.config(text=f"Error! Please contact the developers: \n{e}", wraplength=400)
-
-def copy_output(output: str):
-    try:
-        if len(output) > 0:
-            pyperclip.copy(output)
-            generate_label.config(text=f"{generate_label['text']}\nCopied prompt to clipboard.", wraplength=400)
-        else:
-            generate_label.config(text=f"{generate_label['text']}\nPlease click Generate Prompt first.", wraplength=400)
-    except Exception as e:
-        print(f"Unknown Exception: {e}")
-        generate_label.config(text=f"{generate_label['text']}\n\nError in trying to copy to clipbaord! Please contact the developers: \n{e}", wraplength=400)
-
-def open_link(event):
-    """Opens the specified URL in the default web browser."""
-    webbrowser.open_new("https://github.com/ereoh/papersummary")
-
-# --- Create the main window ---
-root = tk.Tk()
-root.title("papersummary")
-root.geometry("700x1000") # Set a default size for the window
-
-# Variables
-filepath = ""
-clipboard = tk.BooleanVar(value=False)
-output_to_copy = ""
-
-# A frame to hold the content with some padding
-content_frame = tk.Frame(root, padx=10, pady=10)
-content_frame.pack(expand=True, fill='both')
-
-
-# File Browsing
-file_browse_frame = tk.Frame(content_frame)
-file_browse_frame.pack(pady=10)
-
-# Button to trigger the file browser dialog
-browse_button = Button(
-    file_browse_frame,
-    text="Browse for File",
-    command=browse_file
-)
-browse_button.pack(side='right', padx=(10, 0))
-
-# display chosen file
-file_path_label = Label(
-    file_browse_frame,
-    text="No file selected.",
-    wraplength=350,
-    justify='left'
-)
-file_path_label.pack(side='left', fill='x', expand=True)
-
-# Options
-options_frame = tk.Frame(content_frame)
-options_frame.pack(pady=10)
-
-# clipboard_check = tk.Checkbutton(
-#     options_frame,
-#     text="Copy to Clipboard",
-#     variable=clipboard
-# )
-# clipboard_check.pack(anchor='w', padx=5, pady=(10, 0)) # anchor='w' (west) aligns it left
-# TODO: Output file to txt file
-
-# Prompt Text Box
-prompt_label = tk.Label(
-    options_frame,
-    text="Prompt (optional):"
-)
-prompt_label.pack(anchor='w', padx=5)
-prompt_text = tk.Text(options_frame, height=3, wrap='word')
-prompt_text.pack(fill='x', padx=5, pady=(0, 5))
-prompt_text.insert(tk.END, DEFAULT_PROMPT)
-
-
-separator = ttk.Separator(content_frame, orient='horizontal')
-separator.pack(fill='x', pady=10)
-
-# Button to trigger txt conversion
-generate_button = Button(
-    content_frame,
-    text="Generate Prompt",
-    command=lambda: generate(
-        filepath=filepath,
-        prompt=prompt_text.get("1.0", tk.END).strip(),
-        copy_to_clipoard = clipboard.get()
-    )
-)
-generate_button.pack(pady=10)
-
-# Label to display generation process
-generate_label = Label(
-    content_frame,
-    text="No prompt generated.",
-    pady=20
-)
-generate_label.pack()
-
-# Copy output to clipboard
-copy_button = Button(
-    content_frame,
-    text="Copy Output to Clipboard",
-    command=lambda: copy_output(
-        output=output_to_copy
-    )
-)
-copy_button.pack(pady=10)
-
-# Footer
-footer_frame = tk.Frame(root, bg="#f0f0f0")
-footer_frame.pack(
-    side=tk.BOTTOM, 
-    fill=tk.X  # Make the frame fill the entire width
-)
-footer_font = tkFont.Font(family="Helvetica", size=10, slant="italic")
-link_font = tkFont.Font(family="Helvetica", size=10, underline=True)
-
-# Developer Credits
-author_label = tk.Label(
-    footer_frame,
-    text="Created by Ere Oh",
-    font=footer_font,
-    fg="grey",
-    bg="#f0f0f0" # Match the frame background
-)
-# Pack it to the left side of the footer_frame
-author_label.pack(side=tk.LEFT, padx=(10, 10)) # Add 10px padding on the left
-# Link to Github page
-link_label = tk.Label(
-    footer_frame,
-    text="Github",
-    font=link_font,
-    fg="blue",
-    cursor="hand2",
-    bg="#f0f0f0"
-)
-link_label.pack(side=tk.LEFT)
-
-link_label.bind("<Button-1>", open_link)
-
-# --- Start the GUI event loop ---
-root.mainloop()
+    # 2. Create and show the main window
+    window = PaperSummaryApp()
+    window.show()
+    
+    # 3. Start the event loop
+    sys.exit(app.exec())

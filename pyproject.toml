@@ -22,7 +22,7 @@ dependencies = [
     "python-pptx",
     "python-docx",
     "pyperclip",
-    # "tk",
+    "PySide6",
     # "web-browser"
 ]
 
