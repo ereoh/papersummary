@@ -27,6 +27,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.10' # Match this to your development version
+          architecture: 'x64'
           
       # 3. Install your project's dependencies
       - name: Install dependencies
@@ -38,17 +39,18 @@ jobs:
       - name: Build with Nuitka
         uses: Nuitka/Nuitka-Action@main
         with:
+          nuitka-version: main
           script-name: papersummary/gui.py
           # This plugin is essential for PySide6!
+          mode: standalone
           enable-plugins: pyside6
           # Additional Nuitka arguments
-          nuitka-args: |
-            --standalone
-            --onefile
-            --disable-console
-            --include-data-dir=fonts=fonts
-          # <--- Optional: Use --include-data-dir=SOURCE=DEST to add images, icons, etc.
-          # <--- Example: --include-data-dir=images=images
+          # nuitka-args: |
+          #   --onefile
+          #   --disable-console
+          # # --include-data-dir=fonts=fonts
+          include-data-dir: |
+            papersummary/fonts=fonts
 
           # <--- IMPORTANT: Change this to your app's name
           output-file: papersummary 
