@@ -72,7 +72,7 @@ class PaperSummaryApp(QMainWindow):
         file_browse_layout = QHBoxLayout()
 
         browse_button = QPushButton("Browse for File")
-        browse_button.setFont(QFont("Arial", 10, QFont.Bold))
+        browse_button.setFont(QFont("Arial", 12, QFont.Bold))
         browse_button.clicked.connect(self.browse_file)
         file_browse_layout.addWidget(browse_button)
 
@@ -86,7 +86,7 @@ class PaperSummaryApp(QMainWindow):
 
         # 3. Prompt Text Area
         prompt_label = QLabel("Custom Prompt (optional):")
-        prompt_label.setFont(QFont("Arial", 10))
+        prompt_label.setFont(QFont("Arial", 12))
         self.main_layout.addWidget(prompt_label)
 
         self.prompt_text = QTextEdit()
@@ -123,7 +123,7 @@ class PaperSummaryApp(QMainWindow):
         # 6. Status and Output Label
         self.generate_label = QLabel("No summary generated yet. Select a file and click 'Generate Summary'.")
         self.generate_label.setWordWrap(True)
-        glf = QFont("Arial", 10)
+        glf = QFont("Arial", 12)
         glf.setItalic(True)
         self.generate_label.setFont(glf)
         self.generate_label.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft)

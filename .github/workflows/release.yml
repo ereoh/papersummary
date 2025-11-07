@@ -1,0 +1,68 @@
+# .github/workflows/release.yml
+
+name: 'Build & Release Windows EXE'
+
+# This workflow runs only when you push a new tag in the format v*.*.*
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+# A single job that builds and releases the .exe
+jobs:
+  build-windows:
+    runs-on: windows-latest
+
+    steps:
+      # 1. Check out your code
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      # 2. Set up Python
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10' # Match this to your development version
+          
+      # 3. Install your project's dependencies
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install .
+
+      # 4. Build the .exe with Nuitka
+      - name: Build with Nuitka
+        uses: Nuitka/Nuitka-Action@main
+        with:
+          script-name: papersummary
+          # This plugin is essential for PySide6!
+          enable-plugins: pyside6
+          # Additional Nuitka arguments
+          nuitka-args: |
+            --standalone
+            --onefile
+            --disable-console
+            --include-data-dir=your_assets_folder=assets
+          # <--- Optional: Use --include-data-dir=SOURCE=DEST to add images, icons, etc.
+          # <--- Example: --include-data-dir=images=images
+
+          # <--- IMPORTANT: Change this to your app's name
+          output-file: papersummary 
+
+      # 5. Package the .exe into a .zip file
+      - name: Package as .zip
+        shell: pwsh
+        run: |
+          $appName = "YourAppName" # <--- IMPORTANT: Change this
+          $tag = $env:GITHUB_REF_NAME
+          $zipName = "${appName}-${tag}-Windows.zip"
+          Compress-Archive -Path "${appName}.exe" -DestinationPath $zipName
+          echo "ZIP_NAME=$zipName" >> $env:GITHUB_ENV
+
+      # 6. Create the GitHub Release and upload the .zip
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: ${{ env.ZIP_NAME }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
