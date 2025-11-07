@@ -22,7 +22,7 @@ dependencies = [
     "python-pptx",
     "python-docx",
     "pyperclip",
-    "PySide6",
+    "PySide6[QApplication]",
 ]
 [project.optional-dependencies]
 dev = [
@@ -62,11 +62,14 @@ exclude = '''
   | dist
 )/
 '''
-[tool.pylint]
-disable = "line-too-long"  # Disable "line-too-long"
-max-line-length = 120  # Optionally set the max line length to 120 characters
-# output-format = "text"  # Optional: change the output format of pylint reports
-# load-plugins = ["pylint_django"]  # Example for loading any plugins (if applicable)
+[tool.pylint.main]
+fail-under = 9.0
+
+[tool.pylint.messages_control]
+disable = "line-too-long, missing-final-newline, trailing-whitespace, bare-except, too-few-public-methods, wrong-import-order"
+
+[tool.pylint.format]
+max-line-length = 120
 
 [tool.pytest.ini_options]
 minversion = "7.0"

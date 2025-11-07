@@ -3,20 +3,34 @@ Convert ppts text to txt
 """
 
 from papersummary.base import BaseTextExtractor
+from papersummary.utils import DEFAULT_PROMPT
 
 from pptx import Presentation
 
 
 class PPTX2TextExtractor(BaseTextExtractor):
-
+    """Microsoft .pptx text extractor 
+    """
     def __init__(
         self,
-        default_prompt: str = "Write a clear, concise, objective summary for the following document:",
+        default_prompt: str = DEFAULT_PROMPT,
     ):
+        """Initializes .pptx text extractor
+
+        Args:
+            default_prompt (str, optional): Summary prompt to use. Defaults to DEFAULT_PROMPT.
+        """ 
         super().__init__(supported_extensions=[".pptx"], default_prompt=default_prompt)
 
     def _extract_text(self, file: str) -> str:
-        # Extract text from the .pptx file
+        """Extracts text from .pptx file
+
+        Args:
+            file (str): Path to .pptx file
+
+        Returns:
+            str: Extracted text.
+        """
 
         presentation = Presentation(file)
 

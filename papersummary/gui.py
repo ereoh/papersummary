@@ -1,3 +1,7 @@
+# pylint: disable=no-name-in-module,too-many-instance-attributes,too-many-statements,broad-exception-caught
+""" Launches papersummry GUI
+"""
+
 import sys
 import pyperclip
 from PySide6.QtWidgets import (
@@ -13,21 +17,19 @@ from PySide6.QtWidgets import (
     QFrame,
     QCheckBox,
 )
-from PySide6.QtCore import Qt, Signal
+from PySide6.QtCore import Qt
 from PySide6.QtGui import QFont, QCursor
 
-from papersummary.main import run, SUPPORTED_FILETYPES, DEFAULT_PROMPT
-from papersummary.utils import add_regex_filter
-
-FILE_BROWSER_FILTER = (
-    ("Supported Files", add_regex_filter(SUPPORTED_FILETYPES)),
-    ("all files", "*.*"),
-)
-
+from papersummary.main import run, SUPPORTED_FILETYPES
+from papersummary.utils import DEFAULT_PROMPT
 
 # PySide application class
 class PaperSummaryApp(QMainWindow):
+    """papersummary GUI Window
+    """    
     def __init__(self):
+        """Initializes GUI Window
+        """        
         super().__init__()
         self.filepath = ""
         self.output_to_copy = ""
@@ -43,7 +45,10 @@ class PaperSummaryApp(QMainWindow):
 
         self._init_ui()
 
-    def _init_ui(self):
+    def _init_ui(self) -> None:
+        """
+        Initializes the user interface.
+        """
         # 1. Title Label
         title_label = QLabel("papersummary")
         title_font = QFont("Arial", 16, QFont.Bold)
@@ -133,7 +138,10 @@ class PaperSummaryApp(QMainWindow):
         # 8. Footer (at the bottom of the window, outside main_layout stretch)
         self._init_footer()
 
-    def _init_footer(self):
+    def _init_footer(self) -> None:
+        """
+        Initializes the footer of the GUI window.
+        """
         # Footer is typically added to the main window's status bar or as a separate section
         footer_widget = QWidget()
         footer_layout = QHBoxLayout(footer_widget)
@@ -161,9 +169,7 @@ class PaperSummaryApp(QMainWindow):
         # Add the footer layout to the main window's central widget layout
         self.main_layout.addWidget(footer_widget)
 
-    # --- Core Logic Functions ---
-
-    def browse_file(self):
+    def browse_file(self) -> None:
         """Opens a file dialog to select a file."""
         wildcard_extensions = [f"*{ext}" for ext in SUPPORTED_FILETYPES]
         joined_extensions = " ".join(wildcard_extensions)
@@ -178,7 +184,7 @@ class PaperSummaryApp(QMainWindow):
             self.file_path_label.setText(self.filepath)
             self.generate_label.setText(f"File selected: {self.filepath}")
 
-    def start_generation(self):
+    def start_generation(self) -> None:
         """
         Gathers input and calls the external run function.
         """
@@ -220,7 +226,7 @@ class PaperSummaryApp(QMainWindow):
             print(error_msg)
             self.generate_label.setText(f"A critical error occurred. Details: {e}")
 
-    def copy_output(self):
+    def copy_output(self) -> None:
         """Copies the last generated output to the system clipboard."""
         if len(self.output_to_copy) > 0:
             pyperclip.copy(self.output_to_copy)
@@ -237,14 +243,12 @@ class PaperSummaryApp(QMainWindow):
 
 
 def main():
-    # 1. Initialize QApplication
+    """
+    Initializes and runs the main application.
+    """
     app = QApplication(sys.argv)
-
-    # 2. Create and show the main window
     window = PaperSummaryApp()
     window.show()
-
-    # 3. Start the event loop
     sys.exit(app.exec())
 
 if __name__ == "__main__":

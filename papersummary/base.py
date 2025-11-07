@@ -1,25 +1,50 @@
-"""Base classes"""
+"""Base classes
+"""
 
-from typing import Any, Tuple, List
+from typing import Tuple, List
 from pathlib import Path
 from papersummary.utils import add_prompt_txt, remove_references
 
 
 class BaseTextExtractor:
-
+    """ Base class for extracting text from a file and converting to .txt
+    """
     def __init__(
         self,
         supported_extensions: List[str],
         default_prompt: str = "Write a clear, concise, objective summary for the following document:",
-        **kwargs,
     ):
+        """Initializes `BaseTextExtractor` with supported file extensions and prompt.
+
+        Args:
+            supported_extensions (List[str]): List of supported file extensions.
+            default_prompt (str, optional): Default summarizing prompt. Defaults to "Write a clear, concise, objective summary for the following document:".
+        """            
         self.supported_extensions = supported_extensions
         self.default_prompt = default_prompt
 
     def _extract_text(self, file: str) -> str:
+        """Extracts text from given file
+
+        Args:
+            file (str): Path to file
+
+        Raises:
+            NotImplementedError: Subclasses must implement this method.
+
+        Returns:
+            str: Extract text from file.
+        """        
         raise NotImplementedError
 
-    def _convert_to_txt(self, file: str, txt_file: str, prompt: str = None):
+    def _convert_to_txt(self, file: str, txt_file: str, prompt: str = "") -> None:
+        """Extracts text from file, adds prompt, and writes to .txt file.
+
+        Args:
+            file (str): Path to file.
+            txt_file (str): Path to text file to output.
+            prompt (str, optional): Summary prompt to prepend to text file. Defaults to `self.default_prompt`.
+        """        
         text = self._extract_text(file)
 
         text = remove_references(text)
@@ -28,14 +53,14 @@ class BaseTextExtractor:
         with open(txt_file, "w", encoding="utf-8") as f:
             f.write(text)
 
-        p = self.default_prompt if prompt is None else prompt
+        p = self.default_prompt if len(prompt) == 0 else prompt
 
         add_prompt_txt(txt_file, p)
 
         print(f"Converted: {file} to {txt_file}")
 
     def __call__(
-        self, file: str, txt_file: str = None, prompt: str = None, **kwargs
+        self, file: str, txt_file: str = "", prompt: str = "", **kwargs
     ) -> Tuple[bool, str]:
 
         if not isinstance(file, str):
@@ -47,16 +72,12 @@ class BaseTextExtractor:
 
         file = Path(file)
 
-        try:
-            # print(file)
-            with open(file, "rb") as f:
-                pass
-        except FileNotFoundError:
+        if not file.is_file():
             print(f"Error: Could not find the file: {file}")
             return False, f"Error: Could not find the file: {file}"
 
         # create txt filepath
-        txt_file = file.with_suffix(".txt") if txt_file is None else txt_file
+        txt_file = file.with_suffix(".txt") if len(txt_file) == 0 else txt_file
 
         try:
             self._convert_to_txt(file=file, txt_file=txt_file, prompt=prompt)

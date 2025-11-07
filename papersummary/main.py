@@ -1,31 +1,34 @@
+"""Core papersummary
+"""
 import sys
-import os
 from pathlib import Path
-from typing import List, Tuple, Dict
+from typing import List, Tuple
 
 import pyperclip
 
-from papersummary.base import BaseTextExtractor
-from papersummary.pdf2txt import PDF2TextExtractor
-from papersummary.pptx2txt import PPTX2TextExtractor
-from papersummary.docx2txt import DOCX2TextExtractor
-
-DEFAULT_PROMPT = "Write a clear, concise, objective summary for the following document:"
+from papersummary.extractors import (
+    PDF2TextExtractor,
+    PPTX2TextExtractor,
+    DOCX2TextExtractor,
+)
+from papersummary.utils import DEFAULT_PROMPT
 
 TEXT_EXTRACTORS: list = [PDF2TextExtractor, PPTX2TextExtractor, DOCX2TextExtractor]
 converters: dict = {}
 for extractor_class in TEXT_EXTRACTORS:
 
-    extractor = extractor_class(default_prompt=DEFAULT_PROMPT)
+    ext = extractor_class(default_prompt=DEFAULT_PROMPT)
 
-    for extension in extractor.supported_extensions:
-        converters[extension] = extractor
+    for e in ext.supported_extensions:
+        converters[e] = ext
 
 SUPPORTED_FILETYPES: list = converters.keys()
 
 
 def run(
-    file_paths: List[str], prompt: str = DEFAULT_PROMPT, copy_to_clipoard: bool = False
+    file_paths: List[str], 
+    prompt: str = DEFAULT_PROMPT, 
+    copy_to_clipoard: bool = False
 ) -> List[Tuple[bool, str, str]]:
     """Runs as the main entry point for the script."""
 
@@ -48,7 +51,7 @@ def run(
         for extension, extractor in converters.items():
             if filetype == extension:
                 success, msg = extractor(file=file, prompt=prompt)
-                with open(txt_file, "r") as file:
+                with open(txt_file, "r", encoding='utf-8') as file:
                     contents = file.read()
                 results.append((success, msg, contents))
                 break
@@ -68,5 +71,5 @@ if __name__ == "__main__":
         print("Usage: python papersummary.py <pdf_file1> <pdf_file2> ...")
         sys.exit(1)
     # Get a list of Path objects for each provided argument
-    file_paths = [str(arg) for arg in sys.argv[1:]]
-    run(file_paths)
+    file_paths_command = [str(arg) for arg in sys.argv[1:]]
+    run(file_paths_command)
