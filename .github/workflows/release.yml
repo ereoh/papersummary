@@ -3,10 +3,14 @@
 name: 'Build & Release Windows EXE'
 
 # This workflow runs only when you push a new tag in the format v*.*.*
+# on:
+#   push:
+#     tags:
+#       - 'v*.*.*'
 on:
   push:
-    tags:
-      - 'v*.*.*'
+    branches:
+      - main
 
 # A single job that builds and releases the .exe
 jobs:
@@ -42,7 +46,7 @@ jobs:
             --standalone
             --onefile
             --disable-console
-          # --include-data-dir=your_assets_folder=assets
+            --include-data-dir=fonts=fonts
           # <--- Optional: Use --include-data-dir=SOURCE=DEST to add images, icons, etc.
           # <--- Example: --include-data-dir=images=images
 
